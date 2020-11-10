@@ -1,0 +1,21 @@
+menu "Climatic Chamber Configuration"
+    config WIFI_SSID
+        string "WiFi SSID"
+        default "Apto 305 d"
+        help
+            SSID (network name) for the http server to connect to.
+
+    config WIFI_PASSWORD
+        string "WiFi Password"
+        default "Henrique1951"
+        help
+            WiFi password (WPA or WPA2) for the http server to use.
+            Can be left blank if the network has no security set.
+
+    config MAX_TEMP
+        int "Maximum temperature value"
+        default 70
+        help
+            The maximum temperatura value in degree Celcius 
+            that your oven can handle.
+endmenu
