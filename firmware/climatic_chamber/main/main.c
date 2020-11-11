@@ -16,14 +16,26 @@
 #include "esp_netif.h"
 #include "chamber_server.h"
 #include "temperature.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
-
+static void temp_read_task(void *pvParameters) 
+{
+    while(1){
+        read_actual_sensor();
+        vTaskDelay(1000 / portTICK_RATE_MS);
+    }
+}
 
 void app_main(void)
 {
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
+
     init_temp();
+    
     http_server_start();
+
+    xTaskCreatePinnedToCore(&temp_read_task, "temp_read_task", 8192, NULL, 5, NULL, 0);
 }
