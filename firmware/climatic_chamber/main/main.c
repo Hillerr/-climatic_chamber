@@ -23,6 +23,7 @@ static void temp_read_task(void *pvParameters)
 {
     while(1){
         read_actual_sensor();
+        read_room_sensor();
         vTaskDelay(1000 / portTICK_RATE_MS);
     }
 }

@@ -7,13 +7,11 @@ static const char *TAG = "http_server";
 
 static esp_err_t actual_get_handler(httpd_req_t *req)
 {
-    char actual_temp[4];
+    char actual_temp[7];
 
-    read_actual_sensor();
+    sensor_read_t actual = get_actual_temp();
 
-    uint32_t actual = get_actual_temp();
-
-    sprintf(actual_temp, "%u", actual);
+    sprintf(actual_temp, "%u.%u", actual.integer, actual.decimal);
 
     httpd_resp_send(req, (const char*) actual_temp, HTTPD_RESP_USE_STRLEN);
 
@@ -22,10 +20,11 @@ static esp_err_t actual_get_handler(httpd_req_t *req)
 
 static esp_err_t target_get_handler(httpd_req_t *req)
 {
-    char target_temp[4];
-    uint32_t target = get_target_temp();
+    char target_temp[7];
 
-    sprintf(target_temp, "%u", target);
+    sensor_read_t target = get_target_temp();
+
+    sprintf(target_temp, "%u.%u", target.integer, target.decimal);
 
     httpd_resp_send(req, (const char*) target_temp, HTTPD_RESP_USE_STRLEN);
 

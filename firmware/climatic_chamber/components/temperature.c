@@ -5,10 +5,14 @@
 #define PIN_NUM_MISO 18
 #define PIN_NUM_MOSI 23
 #define PIN_NUM_CLK  19
-#define PIN_NUM_CS   15
-#define GPIO_OUTPUT_PIN_MASK (1<<PIN_NUM_CS)
+#define ACTUAL_TEMP_PIN_CS   15
+#define ROOM_TEMP_PIN_CS  4
+#define GPIO_OUTPUT_PIN_MASK (1<<ACTUAL_TEMP_PIN_CS) | (1<<ROOM_TEMP_PIN_CS)
 #define HIGH         1
 #define LOW          0
+
+static void set_actual_temp(sensor_read_t value);
+static void set_room_temp(sensor_read_t value);
 
 
 static const char *TAG = "temperature";
@@ -21,9 +25,21 @@ static spi_device_interface_config_t dev_config;
 static spi_transaction_t trans_word;
 
 static temp_data_t temperatures = {
-    .actual = 20,
-    .target = 50,
-    .room = 24
+    .actual = {
+        .integer = 20,
+        .decimal = 0,
+        .raw_value =0
+    },
+    .target = {
+        .integer = 50,
+        .decimal = 0,
+        .raw_value =0
+    },
+    .room = {
+        .integer = 20,
+        .decimal = 0,
+        .raw_value =0
+    },
 };
 
 static bool temp_sys_status = false;
@@ -48,7 +64,8 @@ void init_temp(void)
 
     init_gpio();
 
-    gpio_set_level(PIN_NUM_CS, HIGH);
+    gpio_set_level(ROOM_TEMP_PIN_CS, HIGH);
+    gpio_set_level(ACTUAL_TEMP_PIN_CS, HIGH);
     
     ESP_LOGI(TAG, "Initializing bus SPI%d...", TEMP_SENSOR_HOST+1);
 
@@ -84,11 +101,14 @@ void init_temp(void)
 
 }
 
-void read_actual_sensor(void)
-{
-    uint16_t data, rawtemp, temp=0;
 
-    gpio_set_level(PIN_NUM_CS, LOW); // MAX6675_CS prepare
+
+static void read_sensor(uint8_t cs_pin, sensor_read_t *sensor_read)
+{
+    uint16_t data, rawtemp, temp = 0;
+
+    gpio_set_level(cs_pin, LOW); // MAX6675_CS prepare
+
     vTaskDelay(20 / portTICK_RATE_MS);  // see MAX6675 datasheet
 
     rawtemp = 0x000;
@@ -102,20 +122,41 @@ void read_actual_sensor(void)
     trans_word.tx_buffer = &data;
     trans_word.rx_buffer = &rawtemp;
 
-    ESP_LOGI(TAG, "spi_device_transmit");
 	ESP_ERROR_CHECK(spi_device_transmit(spi_handle, &trans_word));
 
-	gpio_set_level(PIN_NUM_CS, HIGH); // MAX6675_CS prepare
+	gpio_set_level(cs_pin, HIGH); // MAX6675_CS prepare
 
     temp = ((((rawtemp & 0x00FF) << 8) | ((rawtemp & 0xFF00) >> 8))>>3)*25;
 
-	ESP_LOGI(TAG, "readMax6675 spiReadWord=%x temp=%d.%d",rawtemp,temp/100,temp%100);
+    sensor_read->integer = temp/100;
+    sensor_read->decimal = temp%100;
+    sensor_read->raw_value = rawtemp;
+}
+
+void read_actual_sensor(void)
+{
+    sensor_read_t temp;
+
+    read_sensor(ACTUAL_TEMP_PIN_CS, &temp);
+    set_actual_temp(temp);
+
+	ESP_LOGI(TAG, "Actual temperature spiReadWord=%x temp=%d.%d",temp.raw_value, temp.integer, temp.decimal);
 
 }
 
-uint32_t get_actual_temp(void)
+void read_room_sensor(void)
 {
-    uint32_t temp = 0;
+    sensor_read_t temp;
+
+    read_sensor(ROOM_TEMP_PIN_CS, &temp);
+    set_room_temp(temp);
+
+	ESP_LOGI(TAG, "Room temperature spiReadWord=%x temp=%d.%d",temp.raw_value, temp.integer, temp.decimal);
+}
+
+sensor_read_t get_actual_temp(void)
+{
+    sensor_read_t temp;
 
     if (xSemaphoreTake(temp_semaphore, portMAX_DELAY) == pdTRUE)
 	{
@@ -126,9 +167,9 @@ uint32_t get_actual_temp(void)
     return temp;
 }
 
-uint32_t get_target_temp(void)
+sensor_read_t get_target_temp(void)
 {
-    uint32_t temp = 0;
+    sensor_read_t temp;
 
     if (xSemaphoreTake(temp_semaphore, portMAX_DELAY) == pdTRUE)
 	{
@@ -139,9 +180,9 @@ uint32_t get_target_temp(void)
     return temp;
 }
 
-uint32_t get_room_temp(void)
+sensor_read_t get_room_temp(void)
 {
-    uint32_t temp = 0;
+    sensor_read_t temp;
 
     if (xSemaphoreTake(temp_semaphore, portMAX_DELAY) == pdTRUE)
 	{
@@ -152,7 +193,7 @@ uint32_t get_room_temp(void)
     return temp;
 }
 
-static void set_room_temp(uint32_t value)
+static void set_room_temp(sensor_read_t value)
 {
     if (xSemaphoreTake(temp_semaphore, portMAX_DELAY) == pdTRUE)
 	{
@@ -162,7 +203,7 @@ static void set_room_temp(uint32_t value)
 
 }
 
-static void set_actual_temp(uint32_t value)
+static void set_actual_temp(sensor_read_t value)
 {
     if (xSemaphoreTake(temp_semaphore, portMAX_DELAY) == pdTRUE)
 	{
@@ -179,14 +220,14 @@ esp_err_t set_target_temp(uint32_t value)
         return ESP_ERR_INVALID_ARG;
     }
 
-    if(value < temperatures.room){
+    if(value < temperatures.room.integer){
         ESP_LOGE(TAG, "Cannot set a lower temperature than the actual room temperature.");
         return ESP_ERR_INVALID_ARG;
     }
 
     if (xSemaphoreTake(temp_semaphore, portMAX_DELAY) == pdTRUE)
 	{
-		temperatures.target = value;
+		temperatures.target.integer = value;
 		xSemaphoreGive(temp_semaphore);
 	}
 
