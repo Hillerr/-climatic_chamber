@@ -3,10 +3,13 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <esp_event.h>
 #include <esp_log.h>
 #include <esp_system.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
+#include "driver/spi_master.h"
+#include "driver/gpio.h"
 
 struct temp_data{
     uint32_t actual;
@@ -14,9 +17,11 @@ struct temp_data{
     uint32_t room;
 };
 
+typedef struct temp_data temp_data_t;
+
 void init_temp(void);
 
-typedef struct temp_data temp_data_t;
+void read_actual_sensor(void);
 
 uint32_t get_actual_temp(void);
 

@@ -8,6 +8,9 @@ static const char *TAG = "http_server";
 static esp_err_t actual_get_handler(httpd_req_t *req)
 {
     char actual_temp[4];
+
+    read_actual_sensor();
+
     uint32_t actual = get_actual_temp();
 
     sprintf(actual_temp, "%u", actual);
