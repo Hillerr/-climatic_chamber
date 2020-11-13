@@ -34,6 +34,11 @@ static esp_err_t target_get_handler(httpd_req_t *req)
 static esp_err_t target_post_handler(httpd_req_t *req)
 {
     char content[3];
+    sensor_read_t value = {
+        .integer = 0,
+        .decimal = 0,
+        .raw_value = 0
+    };
 
     /* Truncate if content length larger than the buffer */
     size_t recv_size = MIN(req->content_len, sizeof(content));
@@ -52,7 +57,8 @@ static esp_err_t target_post_handler(httpd_req_t *req)
     }
 
     uint32_t temp = atoi(content);
-    esp_err_t res = set_target_temp(temp);
+    value.integer = temp;
+    esp_err_t res = set_target_temp(value);
 
     /* Log data received */
     ESP_LOGI(TAG, "Updating target temperature to %s", content);

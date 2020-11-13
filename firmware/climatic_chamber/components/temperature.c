@@ -11,10 +11,6 @@
 #define HIGH         1
 #define LOW          0
 
-static void set_actual_temp(sensor_read_t value);
-static void set_room_temp(sensor_read_t value);
-
-
 static const char *TAG = "temperature";
 
 SemaphoreHandle_t temp_semaphore = NULL;
@@ -101,9 +97,7 @@ void init_temp(void)
 
 }
 
-
-
-static void read_sensor(uint8_t cs_pin, sensor_read_t *sensor_read)
+void read_sensor(uint8_t cs_pin, sensor_read_t *sensor_read)
 {
     uint16_t data, rawtemp, temp = 0;
 
@@ -193,7 +187,7 @@ sensor_read_t get_room_temp(void)
     return temp;
 }
 
-static void set_room_temp(sensor_read_t value)
+esp_err_t set_room_temp(sensor_read_t value)
 {
     if (xSemaphoreTake(temp_semaphore, portMAX_DELAY) == pdTRUE)
 	{
@@ -201,9 +195,11 @@ static void set_room_temp(sensor_read_t value)
 		xSemaphoreGive(temp_semaphore);
 	}
 
+    return ESP_OK;
+
 }
 
-static void set_actual_temp(sensor_read_t value)
+esp_err_t set_actual_temp(sensor_read_t value)
 {
     if (xSemaphoreTake(temp_semaphore, portMAX_DELAY) == pdTRUE)
 	{
@@ -211,23 +207,25 @@ static void set_actual_temp(sensor_read_t value)
 		xSemaphoreGive(temp_semaphore);
 	}
 
+    return ESP_OK;
+
 }
 
-esp_err_t set_target_temp(uint32_t value)
+esp_err_t set_target_temp(sensor_read_t value)
 {
-    if (value > CONFIG_MAX_TEMP){
+    if (value.integer > CONFIG_MAX_TEMP){
         ESP_LOGE(TAG, "Cannot set a higher temperature than the CONFIG_MAX_TEMP.");
         return ESP_ERR_INVALID_ARG;
     }
 
-    if(value < temperatures.room.integer){
+    if(value.integer < temperatures.room.integer){
         ESP_LOGE(TAG, "Cannot set a lower temperature than the actual room temperature.");
         return ESP_ERR_INVALID_ARG;
     }
 
     if (xSemaphoreTake(temp_semaphore, portMAX_DELAY) == pdTRUE)
 	{
-		temperatures.target.integer = value;
+		temperatures.target = value;
 		xSemaphoreGive(temp_semaphore);
 	}
 

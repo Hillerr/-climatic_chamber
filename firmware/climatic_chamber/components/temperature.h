@@ -29,16 +29,19 @@ typedef struct temp_data temp_data_t;
 
 void init_temp(void);
 
+void read_sensor(uint8_t cs_pin, sensor_read_t *sensor_read);
+
 void read_actual_sensor(void);
 
 void read_room_sensor(void);
 
 sensor_read_t get_actual_temp(void);
+esp_err_t set_actual_temp(sensor_read_t value);
 
 sensor_read_t get_target_temp(void);
-
-esp_err_t set_target_temp(uint32_t value);
+esp_err_t set_target_temp(sensor_read_t value);
 
 sensor_read_t get_room_temp(void);
+esp_err_t set_room_temp(sensor_read_t value);
 
 #endif
