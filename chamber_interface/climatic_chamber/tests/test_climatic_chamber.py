@@ -53,3 +53,18 @@ def test_climatic_chamber_is_connected_method():
 
     # Verify
     assert cc.is_connected() == True
+
+
+def test_climatic_chamber_get_curr_temp():
+    """Testing the get current temperature method
+    """
+    # Setup
+    port = 80
+    ip = "192.168.15.45"
+    
+    # Execute
+    cc = ClimaticChamber(ip, port)
+    res = cc.get_current_temp()
+
+    # Verify
+    assert res == True
