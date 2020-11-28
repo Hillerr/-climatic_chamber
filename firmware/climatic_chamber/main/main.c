@@ -16,6 +16,7 @@
 #include "esp_netif.h"
 #include "chamber_server.h"
 #include "temperature.h"
+#include "ssr.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
@@ -24,6 +25,16 @@ static void temp_read_task(void *pvParameters)
     while(1){
         read_actual_sensor();
         read_room_sensor();
+        vTaskDelay(1000 / portTICK_RATE_MS);
+    }
+}
+
+static void ssr_control_task(void *pvParameters)
+{
+    ssr_init();
+
+    while(1){
+        ssr_set_duty(23831);
         vTaskDelay(1000 / portTICK_RATE_MS);
     }
 }
@@ -39,4 +50,5 @@ void app_main(void)
     http_server_start();
 
     xTaskCreatePinnedToCore(&temp_read_task, "temp_read_task", 8192, NULL, 5, NULL, 0);
+    xTaskCreatePinnedToCore(&ssr_control_task, "ssr_control_task", 8192, NULL, 5, NULL, 0);
 }

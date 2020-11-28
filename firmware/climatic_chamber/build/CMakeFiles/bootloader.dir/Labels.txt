@@ -1,0 +1,13 @@
+# Target labels
+ bootloader
+# Source files and their labels
+/home/hillerr/climatic_chamber/firmware/climatic_chamber/build/CMakeFiles/bootloader
+/home/hillerr/climatic_chamber/firmware/climatic_chamber/build/CMakeFiles/bootloader.rule
+/home/hillerr/climatic_chamber/firmware/climatic_chamber/build/CMakeFiles/bootloader-complete.rule
+/home/hillerr/climatic_chamber/firmware/climatic_chamber/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule
+/home/hillerr/climatic_chamber/firmware/climatic_chamber/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule
+/home/hillerr/climatic_chamber/firmware/climatic_chamber/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule
+/home/hillerr/climatic_chamber/firmware/climatic_chamber/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule
+/home/hillerr/climatic_chamber/firmware/climatic_chamber/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule
+/home/hillerr/climatic_chamber/firmware/climatic_chamber/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule
+/home/hillerr/climatic_chamber/firmware/climatic_chamber/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule

@@ -1,0 +1,43 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/hillerr/climatic_chamber/firmware/climatic_chamber/build/CMakeFiles/bootloader"
+		},
+		{
+			"file" : "/home/hillerr/climatic_chamber/firmware/climatic_chamber/build/CMakeFiles/bootloader.rule"
+		},
+		{
+			"file" : "/home/hillerr/climatic_chamber/firmware/climatic_chamber/build/CMakeFiles/bootloader-complete.rule"
+		},
+		{
+			"file" : "/home/hillerr/climatic_chamber/firmware/climatic_chamber/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule"
+		},
+		{
+			"file" : "/home/hillerr/climatic_chamber/firmware/climatic_chamber/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule"
+		},
+		{
+			"file" : "/home/hillerr/climatic_chamber/firmware/climatic_chamber/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule"
+		},
+		{
+			"file" : "/home/hillerr/climatic_chamber/firmware/climatic_chamber/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule"
+		},
+		{
+			"file" : "/home/hillerr/climatic_chamber/firmware/climatic_chamber/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule"
+		},
+		{
+			"file" : "/home/hillerr/climatic_chamber/firmware/climatic_chamber/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule"
+		},
+		{
+			"file" : "/home/hillerr/climatic_chamber/firmware/climatic_chamber/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"bootloader"
+		],
+		"name" : "bootloader"
+	}
+}
