@@ -22,17 +22,17 @@ static spi_transaction_t trans_word;
 
 static temp_data_t temperatures = {
     .actual = {
-        .integer = 20,
+        .integer = 0,
         .decimal = 0,
         .raw_value =0
     },
     .target = {
-        .integer = 50,
+        .integer = 80,
         .decimal = 0,
         .raw_value =0
     },
     .room = {
-        .integer = 20,
+        .integer = 0,
         .decimal = 0,
         .raw_value =0
     },

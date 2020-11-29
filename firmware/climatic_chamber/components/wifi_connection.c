@@ -15,7 +15,7 @@ static esp_netif_t* wifi_start(void)
 
     esp_netif_dhcpc_stop(my_sta);
 
-    ip4addr.addr = ESP_IP4TOUINT32(45, 15, 168, 192);
+    ip4addr.addr = ESP_IP4TOUINT32(200, 15, 168, 192);
     mask.addr = ESP_IP4TOUINT32(0,255,255,255);
     gateway.addr = ESP_IP4TOUINT32(254, 1, 168, 192);
 

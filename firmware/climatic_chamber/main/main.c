@@ -20,21 +20,56 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
+const char *TAG = "main";
+
 static void temp_read_task(void *pvParameters) 
 {
     while(1){
         read_actual_sensor();
-        read_room_sensor();
         vTaskDelay(1000 / portTICK_RATE_MS);
     }
 }
 
 static void ssr_control_task(void *pvParameters)
 {
+    double Kp = 3.454;
+    double Ki = 0.0187;
+    double Kd = 106.51;
+    int error = 0, last_measure = 0, last_curr = 0;
+
+    double proportional, integral = 0, pi, derivative;
+    int fs = 1;
+    int duty;
+
+    sensor_read_t curr, target;
+
     ssr_init();
 
     while(1){
-        ssr_set_duty(23831);
+
+        curr = get_actual_temp();
+        target = get_target_temp();
+
+        error = target.integer - curr.integer;
+        last_curr = last_measure - curr.integer;
+
+        proportional = Kp * error;
+        integral += Ki * error;
+        derivative = (last_curr)*Kd;
+
+        last_measure = curr.integer;
+
+        pi = proportional + integral + derivative;
+
+        duty = (pi * 64/160);
+
+        if (duty > 64) duty = 64;
+        if (duty < 0) duty = 0;
+
+        duty = duty * 256 * 4;
+
+        ESP_LOGI(TAG, "Error: %d\tControl: %f\tDuty: %d", error, pi, duty);
+        ssr_set_duty(duty);
         vTaskDelay(1000 / portTICK_RATE_MS);
     }
 }
