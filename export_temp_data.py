@@ -2,11 +2,11 @@ from chamber_interface import ClimaticChamber
 import time, csv, datetime
 
 
-ip = "192.168.15.45"
+ip = "192.168.15.200"
 port = 80
-file_name = "temp_36_dt_off.csv"
+file_name = "temp_control_pi.csv"
 
-T = 1
+T = .5
 t = 0
 
 if __name__ == "__main__":
@@ -23,10 +23,11 @@ if __name__ == "__main__":
             try:
 
                 temp = cc.get_current_temp()
+                target = cc.get_target_temp()
 
-                print("Time: ", datetime.datetime.now().time().isoformat(), "\tTemp (C): ", temp)
+                print("Time: ", datetime.datetime.now().time().isoformat(), "\tTemp (C): ", temp, "\tTarget (C): ", target)
 
-                temp_data_writer.writerow([str(t*T), str(temp)])
+                temp_data_writer.writerow([str(t*T), str(temp), str(target)])
                 time.sleep(T)
                 t += 1
 

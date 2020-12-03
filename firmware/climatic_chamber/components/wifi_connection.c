@@ -17,7 +17,7 @@ static esp_netif_t* wifi_start(void)
 
     ip4addr.addr = ESP_IP4TOUINT32(200, 15, 168, 192);
     mask.addr = ESP_IP4TOUINT32(0,255,255,255);
-    gateway.addr = ESP_IP4TOUINT32(254, 1, 168, 192);
+    gateway.addr = ESP_IP4TOUINT32(254, 15, 168, 192);
 
     my_ip.ip = ip4addr;
     my_ip.netmask = mask;

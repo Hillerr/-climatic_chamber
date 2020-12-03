@@ -86,6 +86,19 @@ class ClimaticChamber:
         return float(res.text)
 
 
+    def get_target_temp(self):
+        """Get chamber inside current temperature
+
+        Parameters:
+            None
+
+        Returns:
+            float: the temperature value
+        """
+        res = requests.get(f"http://{self.ip}:{self.port}{self._target_temp_uri}")
+
+        return float(res.text)
+
         
 
 

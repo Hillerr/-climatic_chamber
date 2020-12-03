@@ -30,12 +30,33 @@ static void temp_read_task(void *pvParameters)
     }
 }
 
+static int calc_last_measures(int *last_measures, int size){
+    int i, sum = 0;
+
+    for (i = 0; i < size; i++){
+        sum += last_measures[i];
+    }
+
+    return sum/size;
+}
+
+static void init_last_measures(int *last_measures, int size){
+    int i;
+
+    for (i = 0; i < size; i++){
+        last_measures[i] = 0;
+    }
+}
+
 static void ssr_control_task(void *pvParameters)
 {
-    double Kp = 3.454;
-    double Ki = 0.0187;
-    double Kd = 106.51;
+    double Kp = 2.65;
+    double Ki = 0.0116;
+    double Kd = 0;
     int error = 0, last_measure = 0, last_curr = 0;
+    int samples[3], samples_index = 0, size_of_samples = 3;
+
+    init_last_measures(samples, size_of_samples);
 
     double proportional, integral = 0, pi, derivative;
     int fs = 1;
@@ -51,13 +72,18 @@ static void ssr_control_task(void *pvParameters)
         target = get_target_temp();
 
         error = target.integer - curr.integer;
-        last_curr = last_measure - curr.integer;
+        last_measure = calc_last_measures(samples, size_of_samples);
+
+        samples[samples_index] = error;
+
+        samples_index ++;
+        samples_index %= size_of_samples;
+
+        last_curr = last_measure - calc_last_measures(samples, size_of_samples);
 
         proportional = Kp * error;
         integral += Ki * error;
         derivative = (last_curr)*Kd;
-
-        last_measure = curr.integer;
 
         pi = proportional + integral + derivative;
 
@@ -68,7 +94,14 @@ static void ssr_control_task(void *pvParameters)
 
         duty = duty * 256 * 4;
 
-        ESP_LOGI(TAG, "Error: %d\tControl: %f\tDuty: %d", error, pi, duty);
+        ESP_LOGI(TAG, "Current: %d.%d\tTarget: %d.%d\tError: %d\tControl: %f\tDuty: %d", 
+                curr.integer, curr.decimal, 
+                target.integer, target.decimal, 
+                error, pi, duty);
+
+        ESP_LOGI(TAG, "Last: %d\tLast_Curr: %d",  last_measure, last_curr);
+        
+
         ssr_set_duty(duty);
         vTaskDelay(1000 / portTICK_RATE_MS);
     }

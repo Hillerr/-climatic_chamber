@@ -5,9 +5,10 @@
 #define PIN_NUM_MISO 18
 #define PIN_NUM_MOSI 23
 #define PIN_NUM_CLK  19
-#define ACTUAL_TEMP_PIN_CS   15
-#define ROOM_TEMP_PIN_CS  4
-#define GPIO_OUTPUT_PIN_MASK (1<<ACTUAL_TEMP_PIN_CS) | (1<<ROOM_TEMP_PIN_CS)
+#define ACTUAL_TEMP_PIN_CS_1    15
+#define ACTUAL_TEMP_PIN_CS_2    4
+#define ROOM_TEMP_PIN_CS        1
+#define GPIO_OUTPUT_PIN_MASK (1<<ACTUAL_TEMP_PIN_CS_1) | (1<<ACTUAL_TEMP_PIN_CS_2)
 #define HIGH         1
 #define LOW          0
 
@@ -27,7 +28,7 @@ static temp_data_t temperatures = {
         .raw_value =0
     },
     .target = {
-        .integer = 80,
+        .integer = 25,
         .decimal = 0,
         .raw_value =0
     },
@@ -60,8 +61,8 @@ void init_temp(void)
 
     init_gpio();
 
-    gpio_set_level(ROOM_TEMP_PIN_CS, HIGH);
-    gpio_set_level(ACTUAL_TEMP_PIN_CS, HIGH);
+    gpio_set_level(ACTUAL_TEMP_PIN_CS_2, HIGH);
+    gpio_set_level(ACTUAL_TEMP_PIN_CS_1, HIGH);
     
     ESP_LOGI(TAG, "Initializing bus SPI%d...", TEMP_SENSOR_HOST+1);
 
@@ -129,13 +130,16 @@ void read_sensor(uint8_t cs_pin, sensor_read_t *sensor_read)
 
 void read_actual_sensor(void)
 {
-    sensor_read_t temp;
+    sensor_read_t temp1, temp2, temp_med;
 
-    read_sensor(ACTUAL_TEMP_PIN_CS, &temp);
-    set_actual_temp(temp);
+    read_sensor(ACTUAL_TEMP_PIN_CS_1, &temp1);
+    read_sensor(ACTUAL_TEMP_PIN_CS_2, &temp2);
 
-	ESP_LOGI(TAG, "Actual temperature spiReadWord=%x temp=%d.%d",temp.raw_value, temp.integer, temp.decimal);
+    temp_med.integer = (temp1.integer + temp2.integer)/2;
+    temp_med.decimal = (temp1.decimal + temp2.decimal)/2;
+    temp_med.raw_value = (temp1.raw_value + temp2.raw_value)/2;
 
+    set_actual_temp(temp_med);
 }
 
 void read_room_sensor(void)

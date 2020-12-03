@@ -123,11 +123,12 @@ CONFIG_PARTITION_TABLE_MD5=y
 # end of Partition Table
 
 #
-# WiFi Connection Configuration
+# Climatic Chamber Configuration
 #
 CONFIG_WIFI_SSID="Apto 305 d"
-CONFIG_WIFI_PASSWORD="Henrique1591"
-# end of WiFi Connection Configuration
+CONFIG_WIFI_PASSWORD="Henrique1951"
+CONFIG_MAX_TEMP=70
+# end of Climatic Chamber Configuration
 
 #
 # Compiler options
