@@ -25,12 +25,12 @@ static temp_data_t temperatures = {
     .actual = {
         .integer = 0,
         .decimal = 0,
-        .raw_value =0
+        .raw_value = 0
     },
     .target = {
         .integer = 25,
         .decimal = 0,
-        .raw_value =0
+        .raw_value = 0
     },
     .room = {
         .integer = 0,
@@ -135,11 +135,13 @@ void read_actual_sensor(void)
     read_sensor(ACTUAL_TEMP_PIN_CS_1, &temp1);
     read_sensor(ACTUAL_TEMP_PIN_CS_2, &temp2);
 
+    ESP_LOGI(TAG, "Device location temperature temp=%d.%d", temp2.integer, temp2.decimal);
+
     temp_med.integer = (temp1.integer + temp2.integer)/2;
     temp_med.decimal = (temp1.decimal + temp2.decimal)/2;
     temp_med.raw_value = (temp1.raw_value + temp2.raw_value)/2;
 
-    set_actual_temp(temp_med);
+    set_actual_temp(temp1);
 }
 
 void read_room_sensor(void)

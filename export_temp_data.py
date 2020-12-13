@@ -1,12 +1,12 @@
-from chamber_interface import ClimaticChamber
+from chamber_interface.chamber_gui.climatic_chamber import ClimaticChamber
 import time, csv, datetime
 
 
 ip = "192.168.15.200"
 port = 80
-file_name = "temp_control_pi.csv"
+file_name = "data_aquisition/temp_control_55_one_sensor.csv"
 
-T = .5
+T = 1
 t = 0
 
 if __name__ == "__main__":

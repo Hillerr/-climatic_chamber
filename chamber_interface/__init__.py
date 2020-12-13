@@ -1,1 +1,1 @@
-from .climatic_chamber import ClimaticChamber
+from .chamber_gui.climatic_chamber import ClimaticChamber

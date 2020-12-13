@@ -30,39 +30,20 @@ static void temp_read_task(void *pvParameters)
     }
 }
 
-static int calc_last_measures(int *last_measures, int size){
-    int i, sum = 0;
-
-    for (i = 0; i < size; i++){
-        sum += last_measures[i];
-    }
-
-    return sum/size;
-}
-
-static void init_last_measures(int *last_measures, int size){
-    int i;
-
-    for (i = 0; i < size; i++){
-        last_measures[i] = 0;
-    }
-}
 
 static void ssr_control_task(void *pvParameters)
 {
-    double Kp = 2.65;
-    double Ki = 0.0116;
-    double Kd = 0;
-    int error = 0, last_measure = 0, last_curr = 0;
-    int samples[3], samples_index = 0, size_of_samples = 3;
+    double Kp = 1.35;
+    double Ki = 0.006;
+    double error = 0, curr_decimal, target_decimal;
 
-    init_last_measures(samples, size_of_samples);
-
-    double proportional, integral = 0, pi, derivative;
+    double proportional, integral = 0, pi, derivative = 0;
     int fs = 1;
     int duty;
 
-    sensor_read_t curr, target;
+    sensor_read_t curr, target, last_target;
+
+    last_target.integer = 0;
 
     ssr_init();
 
@@ -71,36 +52,39 @@ static void ssr_control_task(void *pvParameters)
         curr = get_actual_temp();
         target = get_target_temp();
 
-        error = target.integer - curr.integer;
-        last_measure = calc_last_measures(samples, size_of_samples);
+        target_decimal = ((double) target.decimal)/100;
+        curr_decimal = ((double) curr.decimal)/100;
 
-        samples[samples_index] = error;
+        if (target.integer < last_target.integer){
+            if (curr.integer < target.integer)
+                integral = 0;
 
-        samples_index ++;
-        samples_index %= size_of_samples;
+            last_target = target;
+        }
 
-        last_curr = last_measure - calc_last_measures(samples, size_of_samples);
+        error = (double) target.integer - (double) curr.integer;
+        error = error + (target_decimal - curr_decimal);
 
         proportional = Kp * error;
         integral += Ki * error;
-        derivative = (last_curr)*Kd;
+
+        last_target = target;
+        
 
         pi = proportional + integral + derivative;
 
-        duty = (pi * 64/160);
+        duty = (pi * 16/62);
 
         if (duty > 64) duty = 64;
         if (duty < 0) duty = 0;
 
         duty = duty * 256 * 4;
 
-        ESP_LOGI(TAG, "Current: %d.%d\tTarget: %d.%d\tError: %d\tControl: %f\tDuty: %d", 
+        ESP_LOGI(TAG, "Current: %d.%d\tTarget: %d.%d\tError: %.2f\tControl: %.2f\tK: %.2f\tI: %.2f\tD: %.2f\tDuty: %d", 
                 curr.integer, curr.decimal, 
                 target.integer, target.decimal, 
-                error, pi, duty);
+                error, pi, proportional, integral, derivative, duty);
 
-        ESP_LOGI(TAG, "Last: %d\tLast_Curr: %d",  last_measure, last_curr);
-        
 
         ssr_set_duty(duty);
         vTaskDelay(1000 / portTICK_RATE_MS);
