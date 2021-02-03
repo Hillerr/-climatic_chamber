@@ -19,10 +19,10 @@ class RoutineData:
                     "minute": step['minute'],
                     "temperature": step['temperature'],
                     "total_time": step['total_time'],
-                    "duration": None,
-                    "transition_time": None,
-                    "start_time": None,
-                    "end_time": None,
+                    "duration": 0,
+                    "transition_time": 0,
+                    "start_time": 0,
+                    "end_time": 0,
                 }
             )
 

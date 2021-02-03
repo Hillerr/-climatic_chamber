@@ -2,31 +2,38 @@ from PyQt5 import QtWidgets
 
 class RoutineFileManager(QtWidgets.QDialog):
 
+    def get_directory(self, caption="Select directory"):
+        folder_path = QtWidgets.QFileDialog.getExistingDirectory(self, caption)
+        return folder_path
+
     def save_routine_file(self, routine, server_ip):
         fname = QtWidgets.QFileDialog.getSaveFileName(self, "Save routine", filter="Routine Files (*.rtn)")
-        f_content = {
-            "routine": [],
-            "ip": server_ip
-        }
-
-        for step in routine:
-            f_content['routine'].append(
-                {
-                    "hour": step['hour'],
-                    "minute": step['minute'],
-                    "temperature": step['temperature'],
-                }
-            )
-
-        if fname[1] == 'Routine Files (*.rtn)' and fname[0][-3:] != '.rtn':
-            fname = fname[0] + '.rtn'
-        else:
-            fname = fname[0]
 
         if fname[0]:
-            f = open(fname, 'w')
-            f.write(str(f_content))
-            f.close()
+
+            f_content = {
+                "routine": [],
+                "ip": server_ip
+            }
+
+            for step in routine:
+                f_content['routine'].append(
+                    {
+                        "hour": step['hour'],
+                        "minute": step['minute'],
+                        "temperature": step['temperature'],
+                    }
+                )
+
+            if fname[1] == 'Routine Files (*.rtn)' and fname[0][-3:] != '.rtn':
+                fname = fname[0] + '.rtn'
+            else:
+                fname = fname[0]
+
+            if fname[0]:
+                f = open(fname, 'w')
+                f.write(str(f_content))
+                f.close()
 
 
 

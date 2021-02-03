@@ -28,7 +28,7 @@ static temp_data_t temperatures = {
         .raw_value = 0
     },
     .target = {
-        .integer = 25,
+        .integer = 0,
         .decimal = 0,
         .raw_value = 0
     },

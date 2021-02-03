@@ -4,7 +4,7 @@ import time, csv, datetime
 
 ip = "192.168.15.200"
 port = 80
-file_name = "data_aquisition/temp_control_55_one_sensor.csv"
+file_name = "data_aquisition/temp_control_dt10.csv"
 
 T = 1
 t = 0

@@ -41,6 +41,7 @@ class ChamberMainWindow(QtWidgets.QMainWindow, Ui_MainWindowSetup):
     def configure_events(self):
         self.actionNew_routine.triggered.connect(self.routine_manager.new_routine)
         self.actionOpen_routine.triggered.connect(self.routine_manager.open_routine)
+        self.stop_button.clicked.connect(self.routine_manager.end_routine)
         self.configure_timers()
 
 
@@ -64,6 +65,10 @@ class ChamberMainWindow(QtWidgets.QMainWindow, Ui_MainWindowSetup):
             self.update_temp_labels()
             self.update_state()
             self.update_remaining_time()
+            
+            self.conn_status_value.setText("Connected")
+            if self.server_ip_label_value.text() == "--":
+                self.server_ip_label_value.setText(self.routine_manager.ip)
         
 
 

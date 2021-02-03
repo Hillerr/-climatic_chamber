@@ -40,11 +40,23 @@ class RoutineManager(QtWidgets.QDialog, Ui_RoutineCreator):
         
 
     def new_routine(self):
+        if self.status:
+            self.routine_error_manager.print_error_custom_message(
+                "You need to stop the current routine in order to start a new one."
+            )
+            return
+
         self.show()
         self.exec_()
 
 
     def open_routine(self):
+        if self.status:
+            self.routine_error_manager.print_error_custom_message(
+                "You need to stop the current routine in order to open a routine."
+            )
+            return
+
         configs = self.file_manager.open_routine_file()
 
         if configs is not False:
@@ -61,6 +73,7 @@ class RoutineManager(QtWidgets.QDialog, Ui_RoutineCreator):
         self.r_button_save.clicked.connect(self.save_clicked)
         self.r_plot_checkbox.stateChanged.connect(self.plot_export_clicked)
         self.r_report_checkbox.stateChanged.connect(self.report_export_clicked)
+        self.configure_path_button.clicked.connect(self.configure_dir_clicked)
 
 
     def configure_routine(self, configs):
@@ -164,15 +177,17 @@ class RoutineManager(QtWidgets.QDialog, Ui_RoutineCreator):
 
 
     def end_routine(self):
-        self.status = False
-        self.climatic_chamber.set_target_temp(0, 3)
-        self.exporter.export(
-            routine = self.routine_data.routine,
-            time = self.routine_data.time,
-            curr_temps = self.routine_data.curr_temp,
-            target_temps = self.routine_data.target_temp
-            )
-        print(self.routine_data.routine)
+        if self.status:
+            self.status = False
+            self.climatic_chamber.set_target_temp(0, 3)
+            self.exporter.export(
+                routine = self.routine_data.routine,
+                time = self.routine_data.time,
+                curr_temps = self.routine_data.curr_temp,
+                target_temps = self.routine_data.target_temp
+                )
+            self.routine = []
+            self.r_text_browser.clear()
 
 
     def connect(self):
@@ -215,6 +230,7 @@ class RoutineManager(QtWidgets.QDialog, Ui_RoutineCreator):
         self.ip = self.r_text_ip.toPlainText()
         
         if self.connect():
+
             self.initial_time = time.time()
             self.status = True
             self.transient = True
@@ -259,5 +275,11 @@ class RoutineManager(QtWidgets.QDialog, Ui_RoutineCreator):
     def report_export_clicked(self):
         if self.r_report_checkbox.isChecked():
             self.exporter.enable_export_report()
+            
         else:
             self.exporter.disable_export_report()
+
+
+    def configure_dir_clicked(self):
+        export_path = self.file_manager.get_directory("Select export files directory")
+        self.exporter.configure_path(export_path)

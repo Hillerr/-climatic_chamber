@@ -33,8 +33,8 @@ static void temp_read_task(void *pvParameters)
 
 static void ssr_control_task(void *pvParameters)
 {
-    double Kp = 1.35;
-    double Ki = 0.006;
+    double Kp = 1.267;
+    double Ki = 0.0038;
     double error = 0, curr_decimal, target_decimal;
 
     double proportional, integral = 0, pi, derivative = 0;
@@ -52,24 +52,31 @@ static void ssr_control_task(void *pvParameters)
         curr = get_actual_temp();
         target = get_target_temp();
 
-        target_decimal = ((double) target.decimal)/100;
-        curr_decimal = ((double) curr.decimal)/100;
+        if(target.integer){
 
-        if (target.integer < last_target.integer){
-            if (curr.integer < target.integer)
-                integral = 0;
+            target_decimal = ((double) target.decimal)/100;
+            curr_decimal = ((double) curr.decimal)/100;
 
-            last_target = target;
+            if (target.integer < last_target.integer){
+                if (curr.integer < target.integer)
+                    integral = 0;
+
+                last_target = target;
+            }
+
+            error = (double) target.integer - (double) curr.integer;
+            error = error + (target_decimal - curr_decimal);
+
+            proportional = Kp * error;
+            integral += Ki * error;
+
+        }
+        else{
+            proportional = 0;
+            integral = 0;
         }
 
-        error = (double) target.integer - (double) curr.integer;
-        error = error + (target_decimal - curr_decimal);
-
-        proportional = Kp * error;
-        integral += Ki * error;
-
         last_target = target;
-        
 
         pi = proportional + integral + derivative;
 
@@ -79,6 +86,8 @@ static void ssr_control_task(void *pvParameters)
         if (duty < 0) duty = 0;
 
         duty = duty * 256 * 4;
+        
+        //duty = 6554;
 
         ESP_LOGI(TAG, "Current: %d.%d\tTarget: %d.%d\tError: %.2f\tControl: %.2f\tK: %.2f\tI: %.2f\tD: %.2f\tDuty: %d", 
                 curr.integer, curr.decimal, 
