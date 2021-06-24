@@ -3,7 +3,7 @@ import csv
 import pandas as pd
 
 
-file = "data_aquisition/temp_control_dt10.csv"
+file = "data_aquisition/pi_control_44.csv"
 file_2 = None
 #file_2 = "temp_50_dt_off.csv"
 

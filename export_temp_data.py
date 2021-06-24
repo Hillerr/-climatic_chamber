@@ -4,7 +4,7 @@ import time, csv, datetime
 
 ip = "192.168.15.200"
 port = 80
-file_name = "data_aquisition/temp_control_dt10.csv"
+file_name = "data_aquisition/pi_control_44.csv"
 
 T = 1
 t = 0
@@ -22,8 +22,8 @@ if __name__ == "__main__":
         while 1:
             try:
 
-                temp = cc.get_current_temp()
-                target = cc.get_target_temp()
+                temp = cc.get_current_temp(timeout=10)
+                target = cc.get_target_temp(timeout=10)
 
                 print("Time: ", datetime.datetime.now().time().isoformat(), "\tTemp (C): ", temp, "\tTarget (C): ", target)
 
