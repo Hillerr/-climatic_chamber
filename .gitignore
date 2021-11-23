@@ -1,1 +1,3 @@
 ./firmware/climatic_chamber/build/
+./.ipynb_checkpoints
+./.vscode
